@@ -1,0 +1,98 @@
+# from sklearn.preprocessing import MinMaxScaler
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+import pandas as pd
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import Model, layers, Sequential
+from tensorflow.keras.layers import Layer, Input
+
+
+# load dataset
+#This section loads all the dataset, then instantiates a second identical one but represents all data as dataframe
+# It functions entirely so I don't go insane looking at the raw stuff
+diabetes = load_diabetes( as_frame = True)
+diabetes_tuples = load_diabetes(return_X_y=True, as_frame = False)
+#For the inquiring minds, this is de-scaled data and represented as a dataframe
+diabetesraw = load_diabetes(as_frame = True, scaled = False)
+
+#The native state data groups everything as a tuple with the data looking like:
+# tuple = [((feature1data, feature2data, etc....),(targetdata))] where index number is sample#+1
+X = diabetes_tuples[0]
+y = diabetes_tuples[1] 
+# I have literally no effing idea what this data means
+# like none, it says 'progression of diabetes in patients' but its a quantitative assessment?....
+#After reading the column descriptions, my best guess, and its a guess
+#is that target is the follow up to the s6 value, glucose in blood level
+x_raw=diabetesraw.data
+y_raw=diabetesraw.target
+
+
+
+#Using the raw data for the train test data#
+#Splits and creates 75%/25% train and test data
+X_train, X_test, y_train, y_test = train_test_split(X, y, \
+test_size=0.25)
+
+
+#Takes the data, represents as a numpy array and then retrieves shape and stores as a 2d list
+tf_shape = np.array(X_train).shape
+print(tf_shape)
+#print(X, y)
+
+def sequentialmodel(datax):
+    #This is a sequential model call, this functions exactly the same as the other method, just more elegant
+    model = tf.keras.models.Sequential([
+        tf.keras.Input(shape = (10,)),
+        tf.keras.layers.Dense(64,  batch_size=64, activation="elu"),
+        tf.keras.layers.Dense(8, batch_size=64, activation="elu"),
+        tf.keras.layers.Dense(1,  batch_size=64, activation="softmax")
+        
+        ])
+    return model
+
+def modelstart(Ex, Wye):
+    x = Ex
+    y = Wye
+    #x = tf.ones((300,10))#This is a function that will generate a tensor array of entirely ones to train model
+    train = sequentialmodel(x) 
+    #Compiles the model using the parameters below
+    train.compile(optimizer='rmsprop', loss='binary_crossentropy')
+    train.fit(x, y, epochs=10)
+    train.evaluate(x, y)
+    train.summary()
+    
+    #tf.keras.Model.save(filepath=r'C:\Users\bryso\Assignment #4', save_format='h5')
+    #tf.keras.Model.save(filepath='trained_model', save_format='h5')
+    saved = train.save('trained_model.h5')
+    
+    return y
+    
+def modeltest(Ex, Wye, trainx, trainy):
+    y_pred = modelstart(trainx, trainy)
+    print(y_pred)
+    x = Ex
+    y = Wye
+    
+    test = tf.keras.models.load_model('trained_model.h5')
+    test.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
+    test.evaluate(x, y)
+    test.summary()
+    results = tf.keras.Sequential.compute_metrics(x=x, y=y, y_pred=y_pred, sample_weight=1)
+    print(results)
+    
+#scaler = MinMaxScaler()
+#y = y.reshape(-1,1)
+#y = scaler.fit_transform(y)
+
+################## your code here ###################
+## you need to
+## 1. train a neural network model to predict diabetes
+## progression with or without the 'relu' activation function
+## for the output layer
+## 2. Measure the performance of the models on the
+## testing set
+
+
+#######################################################
