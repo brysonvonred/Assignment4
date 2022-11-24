@@ -1,0 +1,54 @@
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras import Sequential, layers, Input
+from tensorflow.keras.layers import Flatten, Conv2D
+
+train_shape = []
+test_shape = []
+
+# load dataset
+raw_data = mnist.load_data()
+(X_train, y_train), (X_test, y_test) = raw_data
+
+number_of_training_instances = X_train.shape[0]
+train_shape.append(number_of_training_instances)
+number_of_testing_instances = X_test.shape[0]
+test_shape.append(number_of_testing_instances)
+# reshape dataset
+# Takes shape from 60000, 784 to 60000x28x28
+X_train = X_train.reshape((number_of_training_instances, 28,28))
+train_shape.append(X_train.shape[1]), train_shape.append(X_train.shape[2])
+X_test = X_test.reshape((number_of_testing_instances, 28,28))
+test_shape.append(X_test.shape[1]), test_shape.append(X_test.shape[2])
+
+print(train_shape)
+print(test_shape)
+
+def batcher(data, depth_int, )
+
+
+model = tf.keras.Sequential([
+    #tf.keras.Input(shape=(None,28,28), batch_size=1),
+    tf.keras.Input(shape=(28,28)),
+    #tf.keras.layers.Conv2D(filters=10, kernel_size=(28,28), data_format='channels_last', activation='elu'),
+    tf.keras.layers.Dense(64, activation='elu'),
+    tf.keras.layers.Dense(32, activation='elu'),
+    tf.keras.layers.Dense(16, activation='elu'),
+    tf.keras.layers.Dense(10, activation='softmax')
+    
+])
+
+model.compile(optimizer='Adam', loss='categorical_crossentropy')
+#model.evaluate(X_train, y_train)
+#model.fit(X_train, y_train, batch_size=128, epochs=20)
+model.fit(X_train,y_train,validation_data=(X_test,y_test),epochs=20,batch_size=3000,verbose=2)
+
+################## your code here ###################
+## you need to
+## 1. Train a neural network model to predict digits
+## with an arbitrary number of hidden layers and neurons
+## 2. Measure the accuracy on the testing set
+## 3. Save the model in 'digits_model.h5'
+
+#######################################################
