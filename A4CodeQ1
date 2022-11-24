@@ -1,0 +1,56 @@
+#Question 1
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn import tree
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+data = pd.read_csv('kidney_disease.csv')
+scores = {}
+
+#Sets up data preprocessing, creates two classifications: 'Not diseased'= no ckd and 'Diseased'= ckd
+xVars, yVars = data.drop(['ckd'], axis=1), data[['ckd']]
+names = list((xVars.columns))
+classnames = list(('Not Diseased', 'Diseased'))
+
+
+
+#### Linear Regression to decided what the most important variable is to use as root node
+
+
+#This was for an earlier version where I was going to use the regression data to set up the root node
+#Because the treeclassifier package does this for you it's redundant
+def dictmaker(data, valuedict):
+    for i in xVars:
+        #xVars.append(i)    
+        #print(xVars)    
+        x = xVars[[i]]
+        #npx = np.array(x)
+        regress = LinearRegression(fit_intercept = True).fit(x, yVars)
+        value = regress.score(x, yVars)
+        #intercept = regress.intercept_(x, yVars)
+        scores[i] = value #, intercept
+        plt.scatter(x, yVars)
+        plt.xlabel(i)
+        plt.show('ckd')
+dictmaker(xVars, scores)
+print(scores)
+#Leaving in because it works cleanely and its a good way to visualize the datas importance per feature
+### Gives me a dictionary printout of the correlation values of each column name ######
+
+### This section will be about creating train data and testing versus test data 75%/25% train test split
+X_train, X_test, y_train, y_test = train_test_split(xVars, yVars,
+test_size=0.25)
+#Uses entropy as a classifier criterion. Went with this model becuase I'd like to see one value and positive indication 
+#for effect. Entropy is succinct and accurate to those needs
+test = DecisionTreeClassifier(criterion = 'entropy').fit(X_train, y_train) 
+y_predict = test.predict(X_test)
+#accuracy = accuracy_score(y_test, y_predict)
+decision = test.decision_path(X_test)
+score = test.score(X_test, y_test)
+print(score)
+print(decision)
+print(names)
+sizing = plt.figure(figsize =(40,20))
+sizing = tree.plot_tree(test, feature_names=names, class_names=classnames, filled=True)
